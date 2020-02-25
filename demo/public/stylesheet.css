@@ -1,0 +1,44 @@
+* {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  line-height: 1.5;
+  vertical-align: baseline;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  color: #424242;
+  font-size: 14px;
+  font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica Neue, Arial, Noto Sans, sans-serif,
+    Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  height: 100%;
+}
+
+input:focus {
+  outline: none;
+}
+
+input {
+  border: none;
+  background-color: transparent;
+}
+
+::placeholder {
+  color: #a0aec0;
+  opacity: 1;
+}
+
+:-ms-input-placeholder {
+  color: #a0aec0;
+}
+
+::-ms-input-placeholder {
+  color: #a0aec0;
+}
