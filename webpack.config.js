@@ -1,21 +1,18 @@
-const path = require("path");
-
 module.exports = {
   mode: "production",
   entry: "./src/index.js",
   output: {
-    path: path.resolve(__dirname, "dist"),
+    path: __dirname + "/dist",
+    publicPath: "/",
     filename: "bundle.js",
     library: "dataChamber",
-    libraryTarget: "umd",
-    libraryExport: "default",
-    globalObject: "this"
+    libraryTarget: "umd"
   },
   module: {
     rules: [
       {
-        test: /\.m?js$/,
-        exclude: /(node_modules)/,
+        test: /\.(js)$/,
+        exclude: /node_modules/,
         use: {
           loader: "babel-loader",
           options: {
@@ -24,5 +21,8 @@ module.exports = {
         }
       }
     ]
+  },
+  resolve: {
+    extensions: ["*", ".js"]
   }
 };
