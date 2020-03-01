@@ -1,3 +1,3 @@
-import createStore from "./store/createStore";
+import Store from "./core/Store";
 
-export { createStore };
+export { Store };

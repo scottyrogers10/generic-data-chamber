@@ -1,7 +1,7 @@
 {
   "name": "generic-data-chamber",
   "author": "Scotty Rogers",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A global data chamber that is library agnostic.",
   "license": "ISC",
   "repository": {
@@ -12,7 +12,6 @@
   "scripts": {
     "build": "webpack --config webpack.config.js"
   },
-  "dependencies": {},
   "devDependencies": {
     "@babel/cli": "^7.8.3",
     "@babel/core": "^7.8.3",
