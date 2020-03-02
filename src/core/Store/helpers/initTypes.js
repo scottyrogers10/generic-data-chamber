@@ -1,10 +1,17 @@
+const defaultConfigs = {
+  isLoading: false,
+  isError: false,
+  error: null,
+  throwErrors: false
+};
+
 const getActions = actions => {
   return Object.entries(actions).reduce((prevVal, [actionName, value]) => {
     const includesConfiguration = typeof value !== "function";
 
     prevVal[actionName] = {
-      configs: includesConfiguration ? value.configs : {},
-      execute: includesConfiguration ? value.action : value
+      configs: includesConfiguration ? { ...defaultConfigs, ...value.configs } : defaultConfigs,
+      reducer: includesConfiguration ? value.reducer : value
     };
     return prevVal;
   }, {});

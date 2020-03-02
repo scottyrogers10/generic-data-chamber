@@ -10,10 +10,35 @@ class Store {
   dispatch({ action: actionName, type: typeName }) {
     return args => {
       const type = this.types[typeName];
-      const action = type.actions[actionName].execute;
+      const action = type.actions[actionName];
 
-      this._setState({ typeName, state: action(type.state, args) });
+      this._setState({ typeName })(action.reducer(type.state, args));
     };
+  }
+
+  dispatchAsync({ action: actionName, type: typeName }) {
+    return args => {
+      const type = this.types[typeName];
+      const action = type.actions[actionName];
+      const setConfigs = this._setConfigs({ actionName, typeName });
+      const setState = this._setState({ typeName });
+      setConfigs({ isLoading: true, isError: false, error: null });
+
+      return Promise.resolve(action.reducer(type.state, args))
+        .then(state => {
+          setState(state);
+          setConfigs({ isLoading: false });
+          return state;
+        })
+        .catch(error => {
+          setConfigs({ isLoading: false, isError: true, error });
+          return action.configs.throwErrors && Promise.reject(error);
+        });
+    };
+  }
+
+  getError({ action: actionName, type: typeName }) {
+    return this.types[typeName].actions[actionName].configs.error;
   }
 
   getState(type = null) {
@@ -27,6 +52,14 @@ class Store {
     }
   }
 
+  isError({ action: actionName, type: typeName }) {
+    return this.types[typeName].actions[actionName].configs.isError;
+  }
+
+  isLoading({ action: actionName, type: typeName }) {
+    return this.types[typeName].actions[actionName].configs.isLoading;
+  }
+
   subscribe(onNotify = () => {}) {
     const token = `uid_${++this.lastUid}`;
     this.subscribers[token] = onNotify;
@@ -38,9 +71,19 @@ class Store {
     Object.entries(this.subscribers).forEach(([_, onNotify]) => onNotify({ store: this }));
   }
 
-  _setState({ typeName, state }) {
-    this.types[typeName].state = state;
-    this._notify();
+  _setConfigs({ actionName, typeName }) {
+    return configs => {
+      const prevConfigs = this.types[typeName].actions[actionName].configs;
+      this.types[typeName].actions[actionName].configs = { ...prevConfigs, ...configs };
+      this._notify();
+    };
+  }
+
+  _setState({ typeName }) {
+    return state => {
+      this.types[typeName].state = state;
+      this._notify();
+    };
   }
 
   _unsubscribe(token = null) {
