@@ -1,8 +1,9 @@
 import initTypes from "./helpers/initTypes";
 
 class Store {
-  constructor({ types }) {
+  constructor({ plugins = {}, types }) {
     this.lastUid = 0;
+    this.plugins = plugins;
     this.subscribers = {};
     this.types = initTypes(types);
   }
@@ -14,7 +15,7 @@ class Store {
       const type = this.types[typeName];
       const action = type.actions[actionName];
 
-      this._setState({ typeName })(action.reducer(type.state, args));
+      this._setState({ typeName })(action.reducer({ plugins: this.plugins, prevState: type.state }, args));
     };
   }
 
@@ -28,7 +29,7 @@ class Store {
       const setState = this._setState({ typeName });
       setConfigs({ isLoading: true, isError: false, error: null });
 
-      return Promise.resolve(action.reducer(type.state, args))
+      return Promise.resolve(action.reducer({ plugins: this.plugins, prevState: type.state }, args))
         .then(state => {
           setState(state);
           setConfigs({ isLoading: false });
