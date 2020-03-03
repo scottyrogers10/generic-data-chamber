@@ -1,12 +1,12 @@
 {
   "name": "generic-data-chamber",
   "author": "Scotty Rogers",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A global data store that is library agnostic.",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "scottyrogers10/gerneric-data-chamber"
+    "url": "scottyrogers10/generic-data-chamber"
   },
   "main": "./dist/bundle.js",
   "scripts": {

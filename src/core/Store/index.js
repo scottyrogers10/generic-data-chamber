@@ -7,7 +7,9 @@ class Store {
     this.types = initTypes(types);
   }
 
-  dispatch({ action: actionName, type: typeName }) {
+  dispatch(actionString) {
+    const [typeName, actionName] = this._tokenizeAction(actionString);
+
     return args => {
       const type = this.types[typeName];
       const action = type.actions[actionName];
@@ -16,7 +18,9 @@ class Store {
     };
   }
 
-  dispatchAsync({ action: actionName, type: typeName }) {
+  dispatchAsync(actionString) {
+    const [typeName, actionName] = this._tokenizeAction(actionString);
+
     return args => {
       const type = this.types[typeName];
       const action = type.actions[actionName];
@@ -37,7 +41,8 @@ class Store {
     };
   }
 
-  getError({ action: actionName, type: typeName }) {
+  getError(actionString) {
+    const [typeName, actionName] = this._tokenizeAction(actionString);
     return this.types[typeName].actions[actionName].configs.error;
   }
 
@@ -52,11 +57,13 @@ class Store {
     }
   }
 
-  isError({ action: actionName, type: typeName }) {
+  isError(actionString) {
+    const [typeName, actionName] = this._tokenizeAction(actionString);
     return this.types[typeName].actions[actionName].configs.isError;
   }
 
-  isLoading({ action: actionName, type: typeName }) {
+  isLoading(actionString) {
+    const [typeName, actionName] = this._tokenizeAction(actionString);
     return this.types[typeName].actions[actionName].configs.isLoading;
   }
 
@@ -84,6 +91,10 @@ class Store {
       this.types[typeName].state = state;
       this._notify();
     };
+  }
+
+  _tokenizeAction(actionString) {
+    return actionString.split(".");
   }
 
   _unsubscribe(token = null) {
