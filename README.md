@@ -7,19 +7,19 @@
 
 A global data store that is library agnostic.
 
-### Installation
+## Installation
 
 ```bash
 npm install generic-data-chamber
 ```
 
-### Importing
+## Importing
 
 ```js
 import { Store } from "generic-data-chamber";
 ```
 
-### Usage
+## Usage
 
 #### 1. Create a Store
 
