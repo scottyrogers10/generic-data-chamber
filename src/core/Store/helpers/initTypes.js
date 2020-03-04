@@ -2,7 +2,8 @@ const defaultConfigs = {
   isLoading: false,
   isError: false,
   error: null,
-  throwErrors: false
+  shouldThrowErrors: false,
+  shouldTrackAsyncState: true
 };
 
 const getActions = actions => {

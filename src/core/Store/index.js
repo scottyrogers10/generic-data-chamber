@@ -1,8 +1,9 @@
 import initTypes from "./helpers/initTypes";
 
 class Store {
-  constructor({ plugins = {}, types }) {
+  constructor({ name = "", plugins = {}, types }) {
     this.lastUid = 0;
+    this.name = name;
     this.plugins = plugins;
     this.subscribers = {};
     this.types = initTypes(types);
@@ -25,19 +26,23 @@ class Store {
     return args => {
       const type = this.types[typeName];
       const action = type.actions[actionName];
+      const shouldTrackAsyncState = action.configs.shouldTrackAsyncState;
       const setConfigs = this._setConfigs({ actionName, typeName });
       const setState = this._setState({ typeName });
-      setConfigs({ isLoading: true, isError: false, error: null });
+
+      shouldTrackAsyncState && setConfigs({ isLoading: true, isError: false, error: null });
 
       return Promise.resolve(action.reducer({ plugins: this.plugins, prevState: type.state }, args))
         .then(state => {
+          shouldTrackAsyncState && setConfigs({ isLoading: false }, false);
           setState(state);
-          setConfigs({ isLoading: false });
           return state;
         })
         .catch(error => {
-          setConfigs({ isLoading: false, isError: true, error });
-          return action.configs.throwErrors && Promise.reject(error);
+          shouldTrackAsyncState && setConfigs({ isLoading: false, isError: true, error });
+          return !shouldTrackAsyncState
+            ? Promise.reject(error)
+            : action.configs.shouldThrowErrors && Promise.reject(error);
         });
     };
   }
@@ -47,7 +52,7 @@ class Store {
     return this.types[typeName].actions[actionName].configs.error;
   }
 
-  getState(type = null) {
+  getState(type) {
     if (type) {
       return this.types[type].state;
     } else {
@@ -76,21 +81,21 @@ class Store {
   }
 
   _notify() {
-    Object.entries(this.subscribers).forEach(([_, onNotify]) => onNotify({ store: this }));
+    Object.entries(this.subscribers).forEach(([_, onNotify]) => onNotify(this));
   }
 
   _setConfigs({ actionName, typeName }) {
-    return configs => {
+    return (configs, shouldNotify = true) => {
       const prevConfigs = this.types[typeName].actions[actionName].configs;
       this.types[typeName].actions[actionName].configs = { ...prevConfigs, ...configs };
-      this._notify();
+      return shouldNotify && this._notify();
     };
   }
 
   _setState({ typeName }) {
-    return state => {
+    return (state, shouldNotify = true) => {
       this.types[typeName].state = state;
-      this._notify();
+      return shouldNotify && this._notify();
     };
   }
 
