@@ -84,7 +84,7 @@ appStore.dispatchAsync("user.getById")(1182);
 appStore.dispatch("user.update")({ firstName: "Scotty" });
 ```
 
-#### 5. Get Status of Async Actions
+#### 6. Get Status of Async Actions
 
 ```js
 import appStore from "./stores/app";
