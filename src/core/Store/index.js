@@ -7,44 +7,40 @@ class Store {
     this.plugins = plugins;
     this.subscribers = {};
     this.types = initTypes(types);
+    this._typeConfigs = types;
   }
 
-  dispatch(actionString) {
+  dispatch(actionString, args) {
     const [typeName, actionName] = this._tokenizeAction(actionString);
+    const type = this.types[typeName];
+    const action = type.actions[actionName];
 
-    return args => {
-      const type = this.types[typeName];
-      const action = type.actions[actionName];
-
-      this._setState({ typeName })(action.reducer({ plugins: this.plugins, prevState: type.state }, args));
-    };
+    this._setState({ typeName })(action.reducer({ plugins: this.plugins, prevState: type.state }, args));
+    return this.types[typeName].state;
   }
 
-  dispatchAsync(actionString) {
+  dispatchAsync(actionString, args) {
     const [typeName, actionName] = this._tokenizeAction(actionString);
+    const type = this.types[typeName];
+    const action = type.actions[actionName];
+    const shouldTrackAsyncState = action.configs.shouldTrackAsyncState;
+    const setConfigs = this._setConfigs({ actionName, typeName });
+    const setState = this._setState({ typeName });
 
-    return args => {
-      const type = this.types[typeName];
-      const action = type.actions[actionName];
-      const shouldTrackAsyncState = action.configs.shouldTrackAsyncState;
-      const setConfigs = this._setConfigs({ actionName, typeName });
-      const setState = this._setState({ typeName });
+    shouldTrackAsyncState && setConfigs({ isLoading: true, isError: false, error: null });
 
-      shouldTrackAsyncState && setConfigs({ isLoading: true, isError: false, error: null });
-
-      return Promise.resolve(action.reducer({ plugins: this.plugins, prevState: type.state }, args))
-        .then(state => {
-          shouldTrackAsyncState && setConfigs({ isLoading: false }, false);
-          setState(state);
-          return state;
-        })
-        .catch(error => {
-          shouldTrackAsyncState && setConfigs({ isLoading: false, isError: true, error });
-          return !shouldTrackAsyncState
-            ? Promise.reject(error)
-            : action.configs.shouldThrowErrors && Promise.reject(error);
-        });
-    };
+    return Promise.resolve(action.reducer({ plugins: this.plugins, prevState: type.state }, args))
+      .then(state => {
+        shouldTrackAsyncState && setConfigs({ isLoading: false }, false);
+        setState(state);
+        return state;
+      })
+      .catch(error => {
+        shouldTrackAsyncState && setConfigs({ isLoading: false, isError: true, error });
+        return !shouldTrackAsyncState
+          ? Promise.reject(error)
+          : action.configs.shouldThrowErrors && Promise.reject(error);
+      });
   }
 
   getError(actionString) {
@@ -82,6 +78,12 @@ class Store {
 
   _notify() {
     Object.entries(this.subscribers).forEach(([_, onNotify]) => onNotify(this));
+  }
+
+  reset() {
+    this.lastUid = 0;
+    this.subscribers = {};
+    this.types = initTypes(this._typeConfigs);
   }
 
   _setConfigs({ actionName, typeName }) {

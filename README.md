@@ -25,9 +25,10 @@ import { Store } from "generic-data-chamber";
 
 ```js
 import { Store } from "generic-data-chamber";
+import userService from "./services/user";
 import userType from "./types/user";
 
-const store = new Store({ name: "APP", plugins: [], types: { user: userType } });
+const store = new Store({ name: "APP", plugins: [userService], types: { user: userType } });
 ```
 
 #### 2. Create a Type
@@ -43,8 +44,8 @@ const user = {
     lsatName: ""
   },
   actions: {
-    getById: {
-      reducer: actions.getById,
+    getByIdAsync: {
+      reducer: actions.getByIdAsync,
       configs: { isLoading: true }
     },
     update: actions.update
@@ -55,8 +56,8 @@ const user = {
 #### 3. Create an Action
 
 ```js
-const getById = ({ plugins, prevState }, userId) => {
-  return userService.getByIdAsync(userId).then(user => {
+const getByIdAsync = ({ plugins, prevState }, userId) => {
+  return plugins.userService.getByIdAsync(userId).then(user => {
     return { ...prevState, ...user };
   });
 };
@@ -80,8 +81,8 @@ subscription.unsubscribe();
 ```js
 import appStore from "./stores/app";
 
-appStore.dispatchAsync("user.getById")(1182);
-appStore.dispatch("user.update")({ firstName: "Scotty" });
+appStore.dispatchAsync("user.getByIdAsync", 1182);
+appStore.dispatch("user.update", { firstName: "Scotty" });
 ```
 
 #### 6. Get Status of Async Actions
@@ -89,7 +90,7 @@ appStore.dispatch("user.update")({ firstName: "Scotty" });
 ```js
 import appStore from "./stores/app";
 
-const isLoading = appStore.isLoading("user.getById");
-const isError = appStore.isError("user.getById");
-const error = appStore.getError("user.getById");
+const isLoading = appStore.isLoading("user.getByIdAsync");
+const isError = appStore.isError("user.getByIdAsync");
+const error = appStore.getError("user.getByIdAsync");
 ```
