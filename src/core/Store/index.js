@@ -15,7 +15,9 @@ class Store {
     const type = this.types[typeName];
     const action = type.actions[actionName];
 
-    this._setState({ typeName })(action.reducer({ plugins: this.plugins, prevState: type.state }, args));
+    this._setState({ typeName })(
+      action.reducer({ plugins: this.plugins, prevState: type.state }, args)
+    );
     return this.types[typeName].state;
   }
 
@@ -27,16 +29,20 @@ class Store {
     const setConfigs = this._setConfigs({ actionName, typeName });
     const setState = this._setState({ typeName });
 
-    shouldTrackAsyncState && setConfigs({ isLoading: true, isError: false, error: null });
+    shouldTrackAsyncState &&
+      setConfigs({ isLoading: true, isError: false, error: null });
 
-    return Promise.resolve(action.reducer({ plugins: this.plugins, prevState: type.state }, args))
+    return Promise.resolve(
+      action.reducer({ plugins: this.plugins, prevState: type.state }, args)
+    )
       .then(state => {
         shouldTrackAsyncState && setConfigs({ isLoading: false }, false);
         setState(state);
         return state;
       })
       .catch(error => {
-        shouldTrackAsyncState && setConfigs({ isLoading: false, isError: true, error });
+        shouldTrackAsyncState &&
+          setConfigs({ isLoading: false, isError: true, error });
         return !shouldTrackAsyncState
           ? Promise.reject(error)
           : action.configs.shouldThrowErrors && Promise.reject(error);
@@ -73,6 +79,7 @@ class Store {
     const token = `uid_${++this.lastUid}`;
     this.subscribers[token] = onNotify;
 
+    onNotify(this);
     return { onNotify, token, unsubscribe: () => this._unsubscribe(token) };
   }
 
@@ -89,7 +96,10 @@ class Store {
   _setConfigs({ actionName, typeName }) {
     return (configs, shouldNotify = true) => {
       const prevConfigs = this.types[typeName].actions[actionName].configs;
-      this.types[typeName].actions[actionName].configs = { ...prevConfigs, ...configs };
+      this.types[typeName].actions[actionName].configs = {
+        ...prevConfigs,
+        ...configs
+      };
       return shouldNotify && this._notify();
     };
   }
