@@ -1,10 +1,11 @@
 import initTypes from "./helpers/initTypes";
 
 class Store {
-  constructor({ name = "", plugins = {}, types }) {
+  constructor({ name = "", plugins = {}, services: {}, types }) {
     this.lastUid = 0;
     this.name = name;
     this.plugins = plugins;
+    this.services = services;
     this.subscribers = {};
     this.types = initTypes(types);
     this._typeConfigs = types;
@@ -16,7 +17,7 @@ class Store {
     const action = type.actions[actionName];
 
     this._setState({ typeName })(
-      action.reducer({ plugins: this.plugins, prevState: type.state }, args)
+      action.reducer({ plugins: this.plugins, prevState: type.state, services: this.services }, args)
     );
     return this.types[typeName].state;
   }
@@ -33,7 +34,7 @@ class Store {
       setConfigs({ isLoading: true, isError: false, error: null });
 
     return Promise.resolve(
-      action.reducer({ plugins: this.plugins, prevState: type.state }, args)
+      action.reducer({ plugins: this.plugins, prevState: type.state, services: this.services }, args)
     )
       .then(state => {
         shouldTrackAsyncState && setConfigs({ isLoading: false }, false);
