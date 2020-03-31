@@ -1,5 +1,5 @@
 const defaultConfigs = {
-  isLoading: false,
+  isPending: false,
   isError: false,
   error: null,
   shouldThrowErrors: false,
@@ -11,7 +11,9 @@ const getActions = actions => {
     const includesConfiguration = typeof value !== "function";
 
     prevVal[actionName] = {
-      configs: includesConfiguration ? { ...defaultConfigs, ...value.configs } : defaultConfigs,
+      configs: includesConfiguration
+        ? { ...defaultConfigs, ...value.configs }
+        : defaultConfigs,
       reducer: includesConfiguration ? value.reducer : value
     };
     return prevVal;
@@ -19,12 +21,15 @@ const getActions = actions => {
 };
 
 export default (types = {}) => {
-  return Object.entries(types).reduce((prevVal, [_, { actions = {}, name, state = null }]) => {
-    prevVal[name] = {
-      actions: getActions(actions),
-      state
-    };
+  return Object.entries(types).reduce(
+    (prevVal, [_, { actions = {}, name, state = null }]) => {
+      prevVal[name] = {
+        actions: getActions(actions),
+        state
+      };
 
-    return prevVal;
-  }, {});
+      return prevVal;
+    },
+    {}
+  );
 };

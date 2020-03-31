@@ -28,7 +28,11 @@ import { Store } from "generic-data-chamber";
 import userService from "./services/user";
 import userType from "./types/user";
 
-const store = new Store({ name: "APP", plugins: [userService], types: { user: userType } });
+const store = new Store({
+  name: "APP",
+  plugins: [userService],
+  types: { user: userType }
+});
 ```
 
 #### 2. Create a Type
@@ -46,7 +50,7 @@ const user = {
   actions: {
     getByIdAsync: {
       reducer: actions.getByIdAsync,
-      configs: { isLoading: true }
+      configs: { isPending: true }
     },
     update: actions.update
   }
@@ -90,7 +94,7 @@ appStore.dispatch("user.update", { firstName: "Scotty" });
 ```js
 import appStore from "./stores/app";
 
-const isLoading = appStore.isLoading("user.getByIdAsync");
+const isPending = appStore.isPending("user.getByIdAsync");
 const isError = appStore.isError("user.getByIdAsync");
 const error = appStore.getError("user.getByIdAsync");
 ```

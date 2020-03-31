@@ -17,7 +17,14 @@ class Store {
     const action = type.actions[actionName];
 
     this._setState({ typeName })(
-      action.reducer({ plugins: this.plugins, prevState: type.state, services: this.services }, args)
+      action.reducer(
+        {
+          plugins: this.plugins,
+          prevState: type.state,
+          services: this.services
+        },
+        args
+      )
     );
     return this.types[typeName].state;
   }
@@ -31,19 +38,26 @@ class Store {
     const setState = this._setState({ typeName });
 
     shouldTrackAsyncState &&
-      setConfigs({ isLoading: true, isError: false, error: null });
+      setConfigs({ isPending: true, isError: false, error: null });
 
     return Promise.resolve(
-      action.reducer({ plugins: this.plugins, prevState: type.state, services: this.services }, args)
+      action.reducer(
+        {
+          plugins: this.plugins,
+          prevState: type.state,
+          services: this.services
+        },
+        args
+      )
     )
       .then(state => {
-        shouldTrackAsyncState && setConfigs({ isLoading: false }, false);
+        shouldTrackAsyncState && setConfigs({ isPending: false }, false);
         setState(state);
         return state;
       })
       .catch(error => {
         shouldTrackAsyncState &&
-          setConfigs({ isLoading: false, isError: true, error });
+          setConfigs({ isPending: false, isError: true, error });
         return !shouldTrackAsyncState
           ? Promise.reject(error)
           : action.configs.shouldThrowErrors && Promise.reject(error);
@@ -71,9 +85,9 @@ class Store {
     return this.types[typeName].actions[actionName].configs.isError;
   }
 
-  isLoading(actionString) {
+  isPending(actionString) {
     const [typeName, actionName] = this._tokenizeAction(actionString);
-    return this.types[typeName].actions[actionName].configs.isLoading;
+    return this.types[typeName].actions[actionName].configs.isPending;
   }
 
   subscribe(onNotify = () => {}) {
