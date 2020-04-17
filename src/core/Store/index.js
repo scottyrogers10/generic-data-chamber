@@ -1,10 +1,9 @@
 import initTypes from "./helpers/initTypes";
 
 class Store {
-  constructor({ name = "", plugins = {}, services = {}, types }) {
+  constructor({ name = "", services = {}, types }) {
     this.lastUid = 0;
     this.name = name;
-    this.plugins = plugins;
     this.services = services;
     this.subscribers = {};
     this.types = initTypes(types);
@@ -19,9 +18,8 @@ class Store {
     this._setState({ typeName })(
       action.reducer(
         {
-          plugins: this.plugins,
           prevState: type.state,
-          services: this.services
+          services: this.services,
         },
         args
       )
@@ -43,19 +41,18 @@ class Store {
     return Promise.resolve(
       action.reducer(
         {
-          plugins: this.plugins,
           prevState: type.state,
-          services: this.services
+          services: this.services,
         },
         args
       )
     )
-      .then(state => {
+      .then((state) => {
         shouldTrackAsyncState && setConfigs({ isPending: false }, false);
         setState(state);
         return state;
       })
-      .catch(error => {
+      .catch((error) => {
         shouldTrackAsyncState &&
           setConfigs({ isPending: false, isError: true, error });
         return !shouldTrackAsyncState
@@ -99,7 +96,7 @@ class Store {
   }
 
   _notify() {
-    Object.entries(this.subscribers).forEach(([_, onNotify]) => onNotify(this));
+    Object.values(this.subscribers).forEach((onNotify) => onNotify(this));
   }
 
   reset() {
@@ -113,7 +110,7 @@ class Store {
       const prevConfigs = this.types[typeName].actions[actionName].configs;
       this.types[typeName].actions[actionName].configs = {
         ...prevConfigs,
-        ...configs
+        ...configs,
       };
       return shouldNotify && this._notify();
     };

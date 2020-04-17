@@ -2,11 +2,11 @@ const defaultConfigs = {
   isPending: false,
   isError: false,
   error: null,
-  shouldThrowErrors: false,
-  shouldTrackAsyncState: true
+  shouldThrowErrors: true,
+  shouldTrackAsyncState: true,
 };
 
-const getActions = actions => {
+const getActions = (actions) => {
   return Object.entries(actions).reduce((prevVal, [actionName, value]) => {
     const includesConfiguration = typeof value !== "function";
 
@@ -14,7 +14,7 @@ const getActions = actions => {
       configs: includesConfiguration
         ? { ...defaultConfigs, ...value.configs }
         : defaultConfigs,
-      reducer: includesConfiguration ? value.reducer : value
+      reducer: includesConfiguration ? value.reducer : value,
     };
     return prevVal;
   }, {});
@@ -25,7 +25,7 @@ export default (types = {}) => {
     (prevVal, [_, { actions = {}, name, state = null }]) => {
       prevVal[name] = {
         actions: getActions(actions),
-        state
+        state,
       };
 
       return prevVal;

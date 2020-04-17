@@ -29,9 +29,9 @@ import userService from "./services/user";
 import userType from "./types/user";
 
 const store = new Store({
-  name: "APP",
-  plugins: [userService],
-  types: { user: userType }
+  name: "app",
+  services: { user: userService },
+  types: { user: userType },
 });
 ```
 
@@ -45,23 +45,27 @@ const user = {
   state: {
     id: null,
     firstName: "",
-    lsatName: ""
+    lastName: "",
   },
   actions: {
     getByIdAsync: {
       reducer: actions.getByIdAsync,
-      configs: { isPending: true }
+      configs: {
+        isPending: true,
+        shouldThrowErrors: false,
+        shouldTrackAsyncState: false,
+      },
     },
-    update: actions.update
-  }
+    update: actions.update,
+  },
 };
 ```
 
 #### 3. Create an Action
 
 ```js
-const getByIdAsync = ({ plugins, prevState }, userId) => {
-  return plugins.userService.getByIdAsync(userId).then(user => {
+const getByIdAsync = ({ services, prevState }, userId) => {
+  return services.user.getByIdAsync(userId).then((user) => {
     return { ...prevState, ...user };
   });
 };
@@ -72,7 +76,7 @@ const getByIdAsync = ({ plugins, prevState }, userId) => {
 ```js
 import appStore from "./stores/app";
 
-const subscription = appStore.subscribe(store => {
+const subscription = appStore.subscribe((store) => {
   const { firstName, lastName } = store.getState("user");
   console.log(`${firstName} ${lastName}`);
 });
