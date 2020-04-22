@@ -124,7 +124,8 @@ class Store {
   }
 
   _tokenizeAction(actionString) {
-    return actionString.split(".");
+    const [typeName] = actionString.split(".");
+    return [typeName, actionString.slice(typeName.length + 1)];
   }
 
   _unsubscribe(token = null) {
