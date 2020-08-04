@@ -1,7 +1,7 @@
 {
   "name": "generic-data-chamber",
   "author": "Scotty Rogers",
-  "version": "6.0.2",
+  "version": "6.0.3",
   "description": "A global data store that is library agnostic.",
   "license": "ISC",
   "repository": {
