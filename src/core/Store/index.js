@@ -1,7 +1,7 @@
 import initTypes from "./helpers/initTypes";
 
 class Store {
-  constructor({ name = "", services = {}, types }) {
+  constructor({ name = "", services = {}, types = {} }) {
     this.lastUid = 0;
     this.name = name;
     this.services = services;
